@@ -3,7 +3,7 @@ package Chap11.Page336;
 import java.util.ArrayList;
 import java.util.List;
 
-// Mock class to provide sample songs
+// Mock factory that builds a list of sample songs for testing
 class MockSongs {
     public static List<String> getSongStrings() {
         return new ArrayList<>();
@@ -11,6 +11,7 @@ class MockSongs {
 
     public static List<SongV3> getSongsV3() {
         List<SongV3> songs = new ArrayList<>();
+        // Populate with SongV3 objects
         songs.add(new SongV3("somersault", "zero 7", 147));
         songs.add(new SongV3("cassidy", "grateful dead", 158));
         songs.add(new SongV3("$10", "hitchhiker", 140));
