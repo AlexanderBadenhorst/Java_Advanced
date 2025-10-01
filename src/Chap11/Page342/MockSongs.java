@@ -3,7 +3,8 @@ package Chap11.Page342;
 import java.util.ArrayList;
 import java.util.List;
 
-// Mock class to provide sample songs
+// Mock factory that provides a hardcoded list of songs.
+// Used so we always have consistent data for testing sorting.
 class MockSongs {
     public static List<String> getSongStrings() {
         return new ArrayList<>();
