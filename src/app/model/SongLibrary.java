@@ -39,4 +39,9 @@ public class SongLibrary {
                         .thenComparing(Song::getTitle, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
     }
+
+    public boolean remove(Song s) {
+        return songs.remove(s);
+    }
+
 }

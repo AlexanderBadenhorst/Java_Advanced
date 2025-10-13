@@ -31,8 +31,11 @@ public class SongManagerFrame extends JFrame {
             "Title", "Artist", "Year, high to low", "Rating, high to low"
     });
 
+    // new: delete button reference so we can enable/disable it
+    private final JButton deleteBtn = new JButton("Delete");
+
     public SongManagerFrame() {
-        super("Song Library, Chapters 11 to 14 demo");
+        super("Song Library");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(720, 520);
         setLocationRelativeTo(null);
@@ -63,6 +66,11 @@ public class SongManagerFrame extends JFrame {
         buttons.add(addBtn);
         buttons.add(saveBtn);
         buttons.add(loadBtn);
+
+        // new: delete button, starts disabled
+        deleteBtn.setEnabled(false);
+        buttons.add(deleteBtn);
+
         left.add(buttons, BorderLayout.SOUTH);
 
         JPanel right = new JPanel(new GridLayout(2, 1, 8, 8));
@@ -83,6 +91,7 @@ public class SongManagerFrame extends JFrame {
         addBtn.addActionListener(e -> onAdd());
         saveBtn.addActionListener(e -> onSave());
         loadBtn.addActionListener(e -> loadFromDisk());
+        deleteBtn.addActionListener(e -> onDelete());
     }
 
     private JPanel labeled(String label, JComponent comp) {
@@ -94,10 +103,18 @@ public class SongManagerFrame extends JFrame {
 
     private void wireEvents() {
         sortCombo.addActionListener(e -> refreshList());
+
         filterField.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { refreshList(); }
             public void removeUpdate(DocumentEvent e) { refreshList(); }
             public void changedUpdate(DocumentEvent e) { refreshList(); }
+        });
+
+        // new: enable Delete only when a song is selected
+        songList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                deleteBtn.setEnabled(!songList.isSelectionEmpty());
+            }
         });
     }
 
@@ -116,6 +133,25 @@ public class SongManagerFrame extends JFrame {
             JOptionPane.showMessageDialog(this, ex.getMessage(),
                     "Validation error", JOptionPane.WARNING_MESSAGE);
         }
+    }
+
+    // new: delete handler
+    private void onDelete() {
+        Song selected = songList.getSelectedValue();
+        if (selected == null) return;
+
+        int choice = JOptionPane.showConfirmDialog(
+                this,
+                "Delete \"" + selected.getTitle() + "\" by " + selected.getArtist() + "?",
+                "Confirm delete",
+                JOptionPane.YES_NO_OPTION
+        );
+        if (choice != JOptionPane.YES_OPTION) return;
+
+        library.remove(selected);
+        refreshList();
+        songList.clearSelection();
+        deleteBtn.setEnabled(false);
     }
 
     private void onSave() {
