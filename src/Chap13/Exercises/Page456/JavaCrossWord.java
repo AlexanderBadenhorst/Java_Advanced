@@ -1,0 +1,39 @@
+package Chap13.Exercises.Page456;
+
+/*Across
+1. ASSIGNMENT
+2. POPPED
+3. SUBCLASS
+4. INVOKE
+5. HIERARCHY
+6. DUCK
+7. EXCEPTIONS
+8. KEYWORD
+9. CLASS
+10. HANDLE
+11. INT
+12. ALGORITHM
+13. THROWS
+14. CONCRETE
+15. NEW
+
+Down
+2. ACTIVE
+3. INSTANTIATE
+4. PRIVATE
+5. MATH
+6. NOTHING
+7. THE
+8. CATCH
+9. THROW
+10. TRY
+11. IMPORT
+12. OVERRIDE
+13. TYPE
+14. COPE
+15. BAD
+16. ROLE
+
+If you want, I can also drop these into a printable key with the clues alongside each answer.
+
+ */
