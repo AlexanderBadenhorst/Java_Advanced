@@ -1,4 +1,4 @@
-package ch17.magnet;
+package Chap17.magnet;
 
 import java.io.*;
 import java.net.InetSocketAddress;

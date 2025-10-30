@@ -1,4 +1,4 @@
-package ch17;
+package Chap17;
 
 import javax.swing.*;
 import java.awt.*;
