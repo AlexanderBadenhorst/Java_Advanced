@@ -1,8 +1,8 @@
-package app.persistence;
+package JavaSongLibraryApp.persistence;
 
-import app.model.Song;
-import app.model.SongLibrary;
-import app.util.ValidationException;
+import JavaSongLibraryApp.model.Song;
+import JavaSongLibraryApp.model.SongLibrary;
+import JavaSongLibraryApp.util.ValidationException;
 
 import java.io.*;
 import java.nio.file.Files;

@@ -1,4 +1,4 @@
-package app.util;
+package JavaSongLibraryApp.util;
 
 /**
  * Domain-specific checked exception used by persistence code.

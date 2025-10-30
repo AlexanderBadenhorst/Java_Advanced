@@ -1,4 +1,4 @@
-package app.model;
+package JavaSongLibraryApp.model;
 
 import java.util.*;
 import java.util.function.Predicate;

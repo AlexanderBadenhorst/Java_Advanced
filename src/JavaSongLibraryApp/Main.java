@@ -1,7 +1,7 @@
-package app;
+package JavaSongLibraryApp;
 
 import javax.swing.SwingUtilities;
-import app.ui.SongManagerFrame;
+import JavaSongLibraryApp.ui.SongManagerFrame;
 
 /**
  * Application entry point.

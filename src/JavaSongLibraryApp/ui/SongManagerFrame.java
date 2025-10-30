@@ -1,9 +1,9 @@
-package app.ui;
+package JavaSongLibraryApp.ui;
 
-import app.model.Song;
-import app.model.SongLibrary;
-import app.persistence.LibraryStorage;
-import app.util.ValidationException;
+import JavaSongLibraryApp.model.Song;
+import JavaSongLibraryApp.model.SongLibrary;
+import JavaSongLibraryApp.persistence.LibraryStorage;
+import JavaSongLibraryApp.util.ValidationException;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
