@@ -1,4 +1,4 @@
-package Chap18.RyanMonica;
+package Chap18.RyanAndMonica;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
