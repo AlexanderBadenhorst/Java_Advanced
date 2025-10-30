@@ -1,4 +1,4 @@
-package Appendix_A;
+package AppendixA;
 
 import java.io.*;
 import java.net.*;

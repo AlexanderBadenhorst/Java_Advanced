@@ -1,4 +1,4 @@
-package Appendix_A;
+package AppendixA;
 
 import javax.sound.midi.*;
 import javax.swing.*;
