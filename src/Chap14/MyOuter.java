@@ -1,4 +1,4 @@
-package chp14;
+package Chap14;
 
 class MyOuter {
   private int x;

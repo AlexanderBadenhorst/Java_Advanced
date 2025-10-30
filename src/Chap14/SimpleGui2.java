@@ -1,4 +1,4 @@
-package chp14;
+package Chap14;
 
 import javax.swing.*;
 import java.awt.event.*;

@@ -1,4 +1,4 @@
-package chp14.btc;
+package Chap14.btc;
 
 import javax.swing.*;
 import java.awt.*;
