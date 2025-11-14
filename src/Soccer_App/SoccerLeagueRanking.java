@@ -1,173 +1,130 @@
 package Soccer_App;
-import java.io.*;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
+/**
+ * Reads match results from a text file and prints a league table.
+ * Rules: win=3, draw=1, loss=0. Same points share the same rank.
+ * Within a tie, teams are printed alphabetically (case-insensitive).
+ *
+ * Input line format:  TeamA <score>, TeamB <score>
+ * Example:            Liverpool 3, ManchesterUnited 3
+ */
 public class SoccerLeagueRanking {
 
-    // Team class to store team information
+    /** Simple value object for display and sorting */
     static class Team implements Comparable<Team> {
-        String name;
-        int points;
+        final String name;
+        final int points;
 
-        public Team(String name, int points) {
+        Team(String name, int points) {
             this.name = name;
             this.points = points;
         }
 
-        // Compare teams by points (descending) then by name (alphabetically)
+        /** Sort: points desc, then name asc, case-insensitive */
         @Override
         public int compareTo(Team other) {
-            if (this.points != other.points) {
-                return other.points - this.points; // Higher points first
-            }
-            return this.name.compareTo(other.name); // Alphabetical if tied
+            if (points != other.points) return Integer.compare(other.points, points);
+            return String.CASE_INSENSITIVE_ORDER.compare(name, other.name);
         }
 
-        @Override
-        public String toString() {
-            return name + ", " + points + " pts";
-        }
+        @Override public String toString() { return name + ", " + points + " pts"; }
     }
 
-    // HashMap to store team names and their points
-    private HashMap<String, Integer> teamScores;
+    // Core storage the rubric asks for
+    private final Map<String, Integer> teamScores = new HashMap<>();
 
-    public SoccerLeagueRanking() {
-        teamScores = new HashMap<>();
-    }
+    /** Public so GUI or tests can reuse the exact parsing and points logic */
+    public void processMatch(String line) {
+        // Split the two “sides” around the first comma
+        String[] sides = line.split(",", 2);
+        if (sides.length != 2) throw new IllegalArgumentException("Invalid match: " + line);
 
-    // Process a single match result line
-    public void processMatch(String matchLine) {
-        // Split by comma to separate the two teams
-        String[] teams = matchLine.split(",");
+        String[] a = parseTeamAndScore(sides[0].trim()); // [name, score]
+        String[] b = parseTeamAndScore(sides[1].trim());
 
-        if (teams.length != 2) {
-            System.err.println("Invalid match format: " + matchLine);
-            return;
-        }
+        String teamA = a[0]; int goalsA = Integer.parseInt(a[1]);
+        String teamB = b[0]; int goalsB = Integer.parseInt(b[1]);
 
-        // Parse team 1
-        String team1Data = teams[0].trim();
-        String[] team1Parts = parseTeamAndScore(team1Data);
-        String team1Name = team1Parts[0];
-        int team1Score = Integer.parseInt(team1Parts[1]);
-
-        // Parse team 2
-        String team2Data = teams[1].trim();
-        String[] team2Parts = parseTeamAndScore(team2Data);
-        String team2Name = team2Parts[0];
-        int team2Score = Integer.parseInt(team2Parts[1]);
-
-        // Calculate points based on match result
-        if (team1Score > team2Score) {
-            // Team 1 wins
-            addPoints(team1Name, 3);
-            addPoints(team2Name, 0);
-        } else if (team2Score > team1Score) {
-            // Team 2 wins
-            addPoints(team1Name, 0);
-            addPoints(team2Name, 3);
+        // Award points
+        if (goalsA > goalsB) {
+            addPoints(teamA, 3); addPoints(teamB, 0);
+        } else if (goalsB > goalsA) {
+            addPoints(teamA, 0); addPoints(teamB, 3);
         } else {
-            // Draw
-            addPoints(team1Name, 1);
-            addPoints(team2Name, 1);
+            addPoints(teamA, 1); addPoints(teamB, 1);
         }
     }
 
-    // Parse team name and score from a string like "Lions 4"
-    private String[] parseTeamAndScore(String teamData) {
-        teamData = teamData.trim();
-        int lastSpaceIndex = teamData.lastIndexOf(' ');
+    /** Split "Team Name 4" into ["Team Name", "4"] with basic validation */
+    private String[] parseTeamAndScore(String chunk) {
+        int i = chunk.lastIndexOf(' ');
+        if (i <= 0 || i == chunk.length() - 1)
+            throw new IllegalArgumentException("Invalid team+score: " + chunk);
+        String name = chunk.substring(0, i).trim();
+        String score = chunk.substring(i + 1).trim();
+        // Lightweight digit check to catch “FC  A” style mistakes
+        if (!score.chars().allMatch(Character::isDigit))
+            throw new IllegalArgumentException("Score is not a number: " + score);
+        return new String[]{name, score};
+    }
 
-        if (lastSpaceIndex == -1) {
-            throw new IllegalArgumentException("Invalid team data: " + teamData);
+    private void addPoints(String team, int pts) {
+        teamScores.put(team, teamScores.getOrDefault(team, 0) + pts);
+    }
+
+    /** Build a sorted list of teams for printing or GUI use */
+    public List<Team> buildSortedTable() {
+        List<Team> out = new ArrayList<>();
+        for (Map.Entry<String, Integer> e : teamScores.entrySet()) {
+            out.add(new Team(e.getKey(), e.getValue()));
         }
-
-        String teamName = teamData.substring(0, lastSpaceIndex).trim();
-        String scoreStr = teamData.substring(lastSpaceIndex + 1).trim();
-
-        return new String[]{teamName, scoreStr};
+        Collections.sort(out);
+        return out;
     }
 
-    // Add points to a team (or initialize if not exists)
-    private void addPoints(String teamName, int points) {
-        teamScores.put(teamName, teamScores.getOrDefault(teamName, 0) + points);
-    }
-
-    // Generate and print the ranking table
+    /** Print with shared ranks: 1,2,3,3,3,6 */
     public void printRankings() {
-        // Convert HashMap to ArrayList of Team objects
-        ArrayList<Team> teams = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : teamScores.entrySet()) {
-            teams.add(new Team(entry.getKey(), entry.getValue()));
-        }
+        List<Team> teams = buildSortedTable();
 
-        // Sort teams using the compareTo method
-        Collections.sort(teams);
+        int lastPoints = Integer.MIN_VALUE;
+        int lastRank = 0;           // the rank number we print
+        int position = 0;           // 1-based position in the sorted list
 
-        // Print rankings with proper rank numbering
-        int rank = 1;
-        int previousPoints = -1;
-        int teamsWithSameRank = 0;
-
-        for (int i = 0; i < teams.size(); i++) {
-            Team team = teams.get(i);
-
-            // If points changed, update rank
-            if (team.points != previousPoints) {
-                rank = i + 1;
-                previousPoints = team.points;
+        System.out.println("Rankings from file:");
+        for (Team t : teams) {
+            position++;
+            if (t.points != lastPoints) {
+                lastPoints = t.points;
+                lastRank = position;
             }
-
-            System.out.println(rank + ". " + team.toString());
+            System.out.println(lastRank + ". " + t);
         }
     }
 
-    // Read matches from a file
-    public void processFile(String filename) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(filename));
-        String line;
-
-        while ((line = reader.readLine()) != null) {
-            if (!line.trim().isEmpty()) {
-                processMatch(line);
+    /** Read line-by-line from a file, skipping blanks */
+    public void processFile(String filePath) throws IOException {
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            for (String line; (line = br.readLine()) != null; ) {
+                line = line.trim();
+                if (!line.isEmpty()) processMatch(line);
             }
         }
-
-        reader.close();
     }
 
-    // Main method with sample usage
     public static void main(String[] args) {
-//        SoccerLeagueRanking league = new SoccerLeagueRanking();
-//
-//        // Process sample data
-//        String[] sampleMatches = {
-//                "Liverpool 3, ManchesterUnited 3",
-//                "Tarantulas2 1, FC Awesome 0",
-//                "Lions 1, FC Awesome 1",
-//                "Tarantulas2 3, ManchesterUnited 1",
-//                "Lions 4, Grouches 0"
-//        };
-//
-//        System.out.println("Processing matches...\n");
-//        for (String match : sampleMatches) {
-//            league.processMatch(match);
-//        }
-//
-//        System.out.println("Final Rankings:");
-//        league.printRankings();
-
-        // Example of reading from a file
-
+        // Default to matches.txt in the project root when run from IntelliJ “play” button
+        String path = (args.length >= 1) ? args[0] : "matches.txt";
         try {
-            SoccerLeagueRanking fileLeague = new SoccerLeagueRanking();
-            fileLeague.processFile("matches.txt");
-            System.out.println("\nRankings from file:");
-            fileLeague.printRankings();
-        } catch (IOException e) {
-            System.err.println("Error reading file: " + e.getMessage());
+            SoccerLeagueRanking league = new SoccerLeagueRanking();
+            league.processFile(path);
+            league.printRankings();
+        } catch (IOException | IllegalArgumentException e) {
+            System.err.println("Error: " + e.getMessage());
         }
-
     }
 }
